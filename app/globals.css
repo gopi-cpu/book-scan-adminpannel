@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply font-inter text-ink bg-bg-alt;
+}
+
+h1, h2, h3 {
+  @apply font-sora font-semibold text-primary-dark;
+}
