@@ -2,17 +2,36 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, CalendarClock, Building2, Stethoscope, PersonStanding, HeartPulse, GalleryHorizontal, LogOut, BarChart3, UserPlus, Inbox, Users } from "lucide-react";
+import {
+  LayoutDashboard,
+  CalendarClock,
+  CreditCard,
+  BarChart3,
+  UserPlus,
+  Inbox,
+  Users,
+  Building2,
+  Activity,
+  Layers,
+  Stethoscope,
+  PersonStanding,
+  HeartPulse,
+  GalleryHorizontal,
+  LogOut
+} from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 
 const NAV = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/bookings", label: "Bookings", icon: CalendarClock },
+  { href: "/payments", label: "Payments", icon: CreditCard },
   { href: "/tracker", label: "Tracker", icon: BarChart3 },
   { href: "/leads", label: "Leads", icon: UserPlus },
   { href: "/inbox", label: "Inbox", icon: Inbox },
   { href: "/users", label: "Users", icon: Users },
   { href: "/centers", label: "Diagnostic Centers", icon: Building2 },
+  { href: "/scan-types", label: "Scan Types", icon: Activity },
+  { href: "/modalities", label: "Modalities / Categories", icon: Layers },
   { href: "/catalog", label: "Scans / Tests / Packages", icon: Stethoscope },
   { href: "/body-parts", label: "Body Parts", icon: PersonStanding },
   { href: "/concerns", label: "Health Concerns", icon: HeartPulse },
@@ -26,10 +45,12 @@ export default function Sidebar() {
 
   return (
     <aside className="w-64 flex-shrink-0 bg-primary-dark text-white min-h-screen flex flex-col">
-      <div className="px-5 py-5 border-b border-white/10">
-        <div className="font-sora font-bold text-lg flex items-center gap-2">
-          <span className="w-7 h-7 rounded-lg bg-teal flex items-center justify-center text-white text-sm">S</span>
-          ScanEase Admin
+      <div className="px-5 py-4 border-b border-white/10">
+        <div className="flex flex-col gap-2">
+          <div className="bg-white/95 rounded-xl px-3 py-2 flex items-center justify-center shadow-sm">
+            <img src="/relyd-logo.png" alt="RelyD" className="h-7 w-auto object-contain" />
+          </div>
+          <span className="text-[11px] font-medium text-[#CFE3EA] tracking-wide uppercase text-center">Admin Portal</span>
         </div>
       </div>
       <nav className="flex-1 py-4">

@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Pencil, Trash2, Plus, X } from "lucide-react";
+import { Pencil, Trash2, Plus, X, Upload, Image as ImageIcon } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { ApiError } from "@/lib/api";
 
 export interface FieldConfig {
   key: string;
   label: string;
-  type: "text" | "number" | "textarea" | "select" | "checkbox" | "tags" | "password";
+  type: "text" | "number" | "textarea" | "select" | "checkbox" | "tags" | "password" | "image";
   options?: { value: string; label: string }[];
   required?: boolean;
   helpText?: string;
@@ -52,6 +52,7 @@ export default function AdminCrudTable<T extends { id: number }>({
   const [editingId, setEditingId] = useState<number | null>(null);
   const [form, setForm] = useState<Record<string, unknown>>(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   async function load() {
     if (!token) return;
@@ -234,6 +235,102 @@ export default function AdminCrudTable<T extends { id: number }>({
                       placeholder="comma, separated, keywords"
                       className="w-full border border-border rounded-lg px-3.5 py-2.5 text-sm outline-none focus:border-teal"
                     />
+                  ) : f.type === "image" ? (
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3">
+                        {form[f.key] ? (
+                          <div className="relative w-24 h-16 rounded-xl overflow-hidden border-2 border-teal/30 bg-slate-100 flex-shrink-0 shadow-xs">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={String(form[f.key])}
+                              alt="Preview"
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                (e.target as HTMLElement).style.display = "none";
+                              }}
+                            />
+                          </div>
+                        ) : (
+                          <div className="w-24 h-16 rounded-xl border border-dashed border-border bg-slate-50 flex flex-col items-center justify-center text-ink-muted text-[10px] flex-shrink-0 gap-1">
+                            <ImageIcon className="w-4 h-4 text-ink-muted/60" />
+                            <span>No image</span>
+                          </div>
+                        )}
+
+                        <div className="flex-1 space-y-1.5">
+                          <label className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-teal/40 bg-teal/5 text-xs font-bold text-teal-dark hover:bg-teal hover:text-white transition cursor-pointer shadow-2xs">
+                            <Upload className="w-3.5 h-3.5" />
+                            <span>{uploadingImage ? "Uploading to Cloud..." : "Upload from Computer"}</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              disabled={uploadingImage}
+                              onChange={async (e) => {
+                                const file = e.target.files?.[0];
+                                if (!file || !token) return;
+                                setUploadingImage(true);
+                                try {
+                                  const formData = new FormData();
+                                  formData.append("image", file);
+                                  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+                                  const res = await fetch(`${apiUrl}/api/admin/hero-slides/upload`, {
+                                    method: "POST",
+                                    headers: { Authorization: `Bearer ${token}` },
+                                    body: formData
+                                  });
+                                  if (!res.ok) {
+                                    const errJson = await res.json().catch(() => ({}));
+                                    throw new Error(errJson.error || "Upload failed");
+                                  }
+                                  const data = await res.json();
+                                  if (data.url) setField(f.key, data.url);
+                                } catch (err: any) {
+                                  alert(`Upload failed: ${err.message || "Could not reach server"}`);
+                                } finally {
+                                  setUploadingImage(false);
+                                }
+                              }}
+                            />
+                          </label>
+                          <input
+                            type="text"
+                            value={String(form[f.key] ?? "")}
+                            onChange={(e) => setField(f.key, e.target.value)}
+                            placeholder="/images/banner-1-family.png or https://..."
+                            className="w-full border border-border rounded-lg px-3 py-1.5 text-xs outline-none focus:border-teal font-mono text-ink-muted"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Quick Presets */}
+                      <div>
+                        <span className="block text-[10px] font-bold uppercase tracking-wider text-ink-muted mb-1">
+                          Or Choose from Standard Posters:
+                        </span>
+                        <div className="flex flex-wrap gap-1.5">
+                          {[
+                            { label: "1. Family Care", url: "/images/banner-1-family.png" },
+                            { label: "3. Home Phlebotomy", url: "/images/banner-3-home-collection.png" },
+                            { label: "4. MRI / CT Scans", url: "/images/banner-4-scans.png" },
+                            { label: "5. Senior Care", url: "/images/banner-5-senior-care.png" }
+                          ].map((p) => (
+                            <button
+                              key={p.url}
+                              type="button"
+                              onClick={() => setField(f.key, p.url)}
+                              className={`text-[10px] px-2.5 py-1 rounded-md border transition cursor-pointer font-semibold ${
+                                String(form[f.key]) === p.url
+                                  ? "bg-teal text-white border-teal shadow-2xs"
+                                  : "bg-white text-ink-muted border-border hover:border-teal hover:text-teal"
+                              }`}
+                            >
+                              {p.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
                   ) : (
                     <input
                       type={f.type}

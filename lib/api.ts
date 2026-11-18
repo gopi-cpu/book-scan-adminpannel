@@ -364,6 +364,9 @@ export interface AdminHeroSlide {
   href: string;
   bg: string;
   accent: string;
+  imageUrl?: string;
+  badge1?: string;
+  badge2?: string;
   stats?: { value: string; label: string }[];
   order: number;
   active: boolean;
@@ -609,4 +612,99 @@ export function adminMarkAllNotificationsRead(token: string): Promise<{ ok: bool
     headers: { Authorization: `Bearer ${token}` }
   });
 }
+
+// ---------- Admin: Modalities / Categories ----------
+
+export interface AdminModality {
+  id: number;
+  key: string;
+  name: string;
+  description?: string;
+  icon: string;
+  colorClass: string;
+  active: boolean;
+  sortOrder: number;
+}
+
+export function adminFetchModalities(token: string): Promise<AdminModality[]> {
+  return request("/api/admin/modalities", { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export function adminCreateModality(token: string, payload: Partial<AdminModality>): Promise<AdminModality> {
+  return request("/api/admin/modalities", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify(payload)
+  });
+}
+
+export function adminUpdateModality(token: string, id: number, payload: Partial<AdminModality>): Promise<AdminModality> {
+  return request(`/api/admin/modalities/${id}`, {
+    method: "PUT",
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify(payload)
+  });
+}
+
+export function adminDeleteModality(token: string, id: number): Promise<void> {
+  return request(`/api/admin/modalities/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
+}
+
+// ---------- Admin: Scan Types ----------
+
+export interface AdminScanType {
+  id: string;
+  slug: string;
+  label: string;
+  tint: string;
+  blurb: string;
+  sortOrder: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export function adminFetchScanTypes(token: string): Promise<AdminScanType[]> {
+  return request("/api/admin/scan-types", { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export function adminCreateScanType(token: string, payload: Partial<AdminScanType>): Promise<AdminScanType> {
+  return request("/api/admin/scan-types", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify(payload)
+  });
+}
+
+export function adminUpdateScanType(token: string, id: string, payload: Partial<AdminScanType>): Promise<AdminScanType> {
+  return request(`/api/admin/scan-types/${id}`, {
+    method: "PUT",
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify(payload)
+  });
+}
+
+export function adminDeleteScanType(token: string, id: string): Promise<void> {
+  return request(`/api/admin/scan-types/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
+}
+
+// ---------- Admin: Payments ----------
+
+export interface AdminPayment {
+  id: string | number;
+  bookingId?: string;
+  orderId?: string;
+  paymentId?: string;
+  userName?: string;
+  userPhone?: string;
+  amount: number;
+  currency: string;
+  method?: string;
+  status: string;
+  createdAt: string;
+}
+
+export function adminFetchPayments(token: string): Promise<AdminPayment[]> {
+  return request("/api/admin/payments", { headers: { Authorization: `Bearer ${token}` } });
+}
+
 
